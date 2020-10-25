@@ -1,0 +1,113 @@
+
+
+body {
+  animation: colorchange 45s infinite;
+
+}
+
+@keyframes colorchange
+{
+  25%   {background: #00cc66;}
+  75%  {background: #009933;}
+  100% {background: #33cc33;}
+}
+
+.buttons {
+  text-align: center;
+}
+
+header {
+  background-image: url('http://whereandwhatintheworld.com/wp-content/uploads/formidable/Skor_fr%C3%A5n_1700-_till_1960-talet_-_Nordiska_Museet_-_NMA.0056302-1024x825.jpg');
+  background-repeat: no-repeat, repeat;
+  background-size: cover;
+  width: auto;
+  height: 300px;
+  border: 2px solid;
+  color: pink;
+}
+.myHeader {
+  color: #FAEBD7;
+  font-family: 'Kaushan Script', cursive;
+  font-size: 20px;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Lobster', cursive;
+  font-size: 55px;
+  text-align: center;
+}
+
+#sale {
+  display: inline-block;
+  border-radius: 100px;
+  border: 4px double #ff0000;
+  text-align: center;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+  width: 250px;
+  height: 97px;
+  background-image: url(https://t3.ftcdn.net/jpg/00/96/90/70/240_F_96907014_76RSBTdRhoR1KB3TTUPzJW5YdOWuBZV9.jpg);
+  background-size: 300px 100px;
+}
+
+#bargain {
+  display: inline-block;
+  border-radius: 100px;
+  border: 4px double #006600;
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+  width: 250px;
+  height: 97px;
+  background-image: url(https://thumbs.dreamstime.com/z/bargain-stamp-square-grunge-sign-124937757.jpg);
+  background-size: 300px 100px;
+}
+
+#gucci {
+  display: inline-block;
+  border-radius: 100px;
+  border: 4px double #666666;
+  color: #ff0000
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+  background-image: url('http://wallpapercave.com/wp/Aw1UUUm.jpg');
+  background-size: 300px 100px;
+  width: 250px;
+  height: 97px;
+}
+
+#brunello {
+  display: inline-block;
+  border-radius: 100px;
+  border: 4px double #666666;
+  color: #ff0000
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+  background-image: url('https://www.logaster.com.es/blog/wp-content/uploads/sites/4/2019/03/0206_t_brunello-logo_4.png');
+  width: 250px;
+  height: 97px;
+}
+
+
+
+/* id="bargain">Best Price</button>
+<button type="button" id="gucci">All of Gucci product</button>
+<button type="button" id="brunello" */
