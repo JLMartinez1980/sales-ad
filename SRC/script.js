@@ -5,7 +5,7 @@ var currentInventory = [
     name: 'Brunello Cucinelli',
     shoes: [
       {name: 'tasselled black low-top lace-up', price: 1000, inStock: 12, timeInDays: 23},
-      {name: 'tasselled green low-top lace-up', price: 1100, inStock: 2, timeInDays: 30},
+      {name: 'tasselled green low-top lace-up', price: 1100, inStock: 2, timeInDays: 60},
       {name: 'plain beige suede moccasin', price: 950, inStock: 22, timeInDays: 90},
       {name: 'plain olive suede moccasin', price: 1050, inStock: 42, timeInDays: 45}
     ]
@@ -13,43 +13,84 @@ var currentInventory = [
   {
     name: 'Gucci',
     shoes: [
-      {name: 'red leather laced sneakers', price: 800, inStock: 31, timeInDays: 45},
+      {name: 'red leather laced sneakers', price: 800, inStock: 31, timeInDays: 75},
       {name: 'black leather laced sneakers', price: 900, inStock: 17, timeInDays: 60}
     ]
   }
 ];
 /*
 PROMOTION BUTTON FUNCTION
+20% off for the product in inventory the longest
 I'll create a helper function, not sure if I will need one
 OUTPUT => 2 OBJECTs {
-name: Gucci || Brunello
-20%off: Math to take off 20% off product that has 60 or more days if multiple products return the first
-If no product meets criteria leave a message to check back
+designerName: ,
+productName: ,
+price: with 20% reduction
 };
 
 */
-  //button id => 'sale'
-function currentPromotion(inventory) {
+
+
+currentPromotion = (inventory, expired) => {
+  console.log('currentPromotion', inventory)
+
+  //use filter to seperate the two designers
   inventory.filter( (product) => {
-    console.log(product)
+    //grab necessary values
+    const designerName = product.name;
+    const shoesArray = product.shoes;
+    //map over shoes array
+    shoesArray.map( (description) => {
+      //get values && use helper function
+      const shoeName = description.name;
+      const shoePrice = reducebyTwenty(description);
+      //get only the products that are less than expired
+      if (description.timeInDays >= expired) {
+        //create return object
+        const designerObject = {
+          designer: designerName,
+          name: shoeName,
+          price: shoePrice
+        }
+
+        expiredInventory.push(designerObject);
+      }
+    });
   });
-}
+    if (expiredInventory.length === 0) {
+      return 'There are no promotions currently';
+    } else {
+      return expiredInventory;
+    }
+};
+
+
+//helper function
+reducebyTwenty = product => product.price * .8;
+
+
+
 
 
 
 //test cases
-const promotionOutput = currentPromotion(currentInventory);
+const promotionOutput = currentPromotion(currentInventory , 75);
+console.log('expiredInventory', expiredInventory);
+console.log(promotionOutput)
 const expectedPromotion = [
   {
-    name: 'Brunello Cucinelli',
-    twentyOff: 760
+    designer: 'Brunello Cucinelli',
+    name: 'plain beige suede moccasin',
+    price: 760
   },
   {
-    name: 'Gucci',
-    twentyOff: 720
+    designer: 'Gucci',
+    name: 'black leather laced sneakers',
+    price: 720
   }
 ]
-
+const addContentButton = document.getElementById('sale');
+addContentButton.addEventListener('click',() => generatePromotionHTML(expiredInventory));
 
 /*
 BARGAIN BUTTON FUNCTION
