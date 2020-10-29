@@ -29,11 +29,9 @@ price: with 20% reduction
 };
 
 */
-
-
 currentPromotion = (inventory, expired) => {
-  console.log('currentPromotion', inventory)
 
+  const expiredInventory = [];
   //use filter to seperate the two designers
   inventory.filter( (product) => {
     //grab necessary values
@@ -43,7 +41,7 @@ currentPromotion = (inventory, expired) => {
     shoesArray.map( (description) => {
       //get values && use helper function
       const shoeName = description.name;
-      const shoePrice = reducebyTwenty(description);
+      const shoePrice = Number(reducebyTwenty(description)).toFixed(2);
       //get only the products that are less than expired
       if (description.timeInDays >= expired) {
         //create return object
@@ -52,7 +50,6 @@ currentPromotion = (inventory, expired) => {
           name: shoeName,
           price: shoePrice
         }
-
         expiredInventory.push(designerObject);
       }
     });
@@ -73,44 +70,67 @@ reducebyTwenty = product => product.price * .8;
 
 
 
-//test cases
-const promotionOutput = currentPromotion(currentInventory , 75);
-console.log('expiredInventory', expiredInventory);
-console.log(promotionOutput)
-const expectedPromotion = [
-  {
-    designer: 'Brunello Cucinelli',
-    name: 'plain beige suede moccasin',
-    price: 760
-  },
-  {
-    designer: 'Gucci',
-    name: 'black leather laced sneakers',
-    price: 720
-  }
-]
-const addContentButton = document.getElementById('sale');
-addContentButton.addEventListener('click',() => generatePromotionHTML(expiredInventory));
+
+
+
 
 /*
 BARGAIN BUTTON FUNCTION
 OUTPUT => STRING: ALL PRODUCT THAT INSTOCK > 30  =>  DESIGNERNAME + DESCRIPTION + COST
+Reduce price by 5%
 */
-const currentBargain = (inventory) => {
-  //button id='bargain'
+const currentBargain = (inventory, target) => {
+  let bargainResult = ''
+  const designers = inventory.filter( (product) => {
+    const designerName = product.name;
+    const shoesArray = product.shoes;
+
+      const productInfo = shoesArray.map( (description) => {
+        const productName = description.name;
+        let productPrice = Number(reductByFive(description)).toFixed(2);
+
+        if (description.inStock >= target) {
+          bargainResult += `${designerName}, ${productName}, $${productPrice} \n`
+        }
+      })
+      return bargainResult;
+  })
+  console.log('bargainResult', bargainResult);
+  return bargainResult
 }
+
+reductByFive = product => product.price * .95;
 
 /*
 GUCCI AND Brunello BUTTONES EXACTLY THE SAME
-OUTPUT => ARRAY [ GUCCI: {PRODUCT IN ASCENDING ORDER}, BRUELLO: {PRODUCT IN ASCENDING ORDER}]
+OUTPUT => ARRAY { GUCCI: [PRODUCT IN ASCENDING ORDER], BRUELLO: [PRODUCT IN ASCENDING ORDER]]
 AsSCEND BY COST
 */
 
-const gucciProduct = (inventory) => {
-  //buttonid='gucci'
+const brunelloProduct = (inventory) => {
+  const brunelloObj = {}
+  const designers = inventory.filter( (product) => {
+    const designerName = product.name;
+    const shoesArray = product.shoes;
+
+  const sortedByPrice = shoesArray.sort( (a, b) => {
+      return a.price - b.price
+    });
+
+    const productInfo = shoesArray.map ( (description) => {
+      const productName = description.name;
+      const productPrice = description.price;
+
+
+    })
+    if (designerName === 'Brunello Cucinelli')
+    brunelloObj[designerName] = sortedByPrice;
+  })
+  console.log('return', brunelloObj)
 }
 
-const brunelloProduct = (inventory) => {
+
+const gucciProduct = (inventory) => {
   //buttonid='brunello'
 }
 
@@ -154,22 +174,23 @@ const assertEqual = (actual, expected, mssg) => {
 
 
 //test cases
-// const promotionOutput = currentPromotion(currentInventory);
-// console.log('return', promotionOutput);
-// const expectedPromotion = [
-//   {
-//     name: 'Brunello Cucinelli',
-//     twentyOff: 760
-//   },
-//   {
-//     name: 'Gucci',
-//     twentyOff: 720
-//   }
-// ]
+const promotionOutput = currentPromotion(currentInventory , 75);
+const expectedPromotion = [
+  {
+    designer: 'Brunello Cucinelli',
+    name: 'plain beige suede moccasin',
+    price: 760
+  },
+  {
+    designer: 'Gucci',
+    name: 'black leather laced sneakers',
+    price: 720
+  }
+]
 
 // assertObject(promotionOutput, expectedPromotion, `should return 2 objects with designers, and any product in stuck for more than 60 days`);
 
-const bargainOutput = currentBargain(currentInventory);
+const bargainOutput = currentBargain(currentInventory, 30);
 const expectedBargain = "Brunello Cucinelli, plain olive suede moccasin, 1050 \n Gucci, red leather laced sneakers, 800\n"
 // assertEqual(bargainOutput, expectedBargain, 'should return a string of all items in stock greater than 30')
 
