@@ -48,7 +48,7 @@ currentPromotion = (inventory, expired) => {
         const designerObject = {
           designer: designerName,
           name: shoeName,
-          price: shoePrice
+          price: `$${shoePrice}`
         }
         expiredInventory.push(designerObject);
       }
@@ -64,15 +64,6 @@ currentPromotion = (inventory, expired) => {
 
 //helper function
 reducebyTwenty = product => product.price * .8;
-
-
-
-
-
-
-
-
-
 
 /*
 BARGAIN BUTTON FUNCTION
@@ -95,7 +86,6 @@ const currentBargain = (inventory, target) => {
       })
       return bargainResult;
   })
-  console.log('bargainResult', bargainResult);
   return bargainResult
 }
 
@@ -108,32 +98,65 @@ AsSCEND BY COST
 */
 
 const brunelloProduct = (inventory) => {
-  const brunelloObj = {}
+  const brunelloDisplayObj = {};
   const designers = inventory.filter( (product) => {
     const designerName = product.name;
     const shoesArray = product.shoes;
 
-  const sortedByPrice = shoesArray.sort( (a, b) => {
-      return a.price - b.price
-    });
+      const productInfo = shoesArray.map( (description) => {
+        const productName = description.name;
+        const productPrice = description.price;
+        const productQty = description.inStock;
 
-    const productInfo = shoesArray.map ( (description) => {
-      const productName = description.name;
-      const productPrice = description.price;
+        const brunelloObj = {
+          productName,
+          productPrice,
+          productQty
+        };
+        return brunelloObj;
+      })
 
+      const sortedByPrice = productInfo.sort( (a, b) => {
+          return a.productPrice - b.productPrice
+      })
 
-    })
-    if (designerName === 'Brunello Cucinelli')
-    brunelloObj[designerName] = sortedByPrice;
+      if (designerName === 'Brunello Cucinelli') {
+        brunelloDisplayObj[designerName] = sortedByPrice
+      }
   })
-  console.log('return', brunelloObj)
+  return brunelloDisplayObj;
 }
 
 
 const gucciProduct = (inventory) => {
-  //buttonid='brunello'
-}
+    const gucciDisplayObj = {};
+    const designers = inventory.filter( (product) => {
+      const designerName = product.name;
+      const shoesArray = product.shoes;
 
+        const productInfo = shoesArray.map( (description) => {
+          const productName = description.name;
+          const productPrice = description.price;
+          const productQty = description.inStock;
+
+          const gucciObj = {
+            productName,
+            productPrice,
+            productQty
+          };
+          return gucciObj;
+        })
+
+        const sortedByPrice = productInfo.sort( (a, b) => {
+            return a.productPrice - b.productPrice
+        })
+
+        if (designerName === 'Gucci') {
+          gucciDisplayObj[designerName] = sortedByPrice
+        }
+    })
+    return gucciDisplayObj;
+  }
 /*
 CREATE A FUNCTION TO KEEP TRACK OF HOW MANY ITEMS HAVE BEEN PURCHASED
 TOTAL
@@ -150,7 +173,7 @@ const totalProductPurchased = () => {
 
 }
 
-const assertObject = (actual, expected, mssg) => {
+const assertEquals = (actual, expected, mssg) => {
   actual = JSON.stringify(actual);
   expected = JSON.stringify(expected);
 
@@ -162,62 +185,53 @@ const assertObject = (actual, expected, mssg) => {
 }
 
 
-//make one test to test all functions keep it simple and clean
-const assertEqual = (actual, expected, mssg) => {
-  if (actual === expected) {
-    console.log('passed');
-  } else {
-    console.log(`FAILED ${mssg}, [EXPECTED: ${expected}] => ${actual}`)
-  }
-}
-
-
-
 //test cases
 const promotionOutput = currentPromotion(currentInventory , 75);
+
 const expectedPromotion = [
   {
-    designer: 'Brunello Cucinelli',
-    name: 'plain beige suede moccasin',
-    price: 760
+  designer: "Brunello Cucinelli",
+  name: "plain beige suede moccasin",
+  price: "$760.00"
   },
   {
-    designer: 'Gucci',
-    name: 'black leather laced sneakers',
-    price: 720
+    designer: "Gucci",
+    name: "red leather laced sneakers",
+    price: "$640.00"
   }
 ]
 
-// assertObject(promotionOutput, expectedPromotion, `should return 2 objects with designers, and any product in stuck for more than 60 days`);
+assertEquals(promotionOutput, expectedPromotion, `should return nested object with price reduce`)
 
 const bargainOutput = currentBargain(currentInventory, 30);
-const expectedBargain = "Brunello Cucinelli, plain olive suede moccasin, 1050 \n Gucci, red leather laced sneakers, 800\n"
-// assertEqual(bargainOutput, expectedBargain, 'should return a string of all items in stock greater than 30')
-
-const gucciOutput = gucciProduct(currentInventory);
-const gucciExpected = [
-  {
-    Gucci: [
-      {name: 'tasselled black low-top lace-up', price: 1000},
-      {name: 'tasselled green low-top lace-up', price: 1100},
-      {name: 'plain olive suede moccasin', price: 1050},
-      {name: 'plain beige suede moccasin', price: 950}
-    ]
-  },
-];
-// assertObject(gucciOutput, gucciExpected, `should return array of objects all gucci products in ascending price order`);
-
+const expectedBargain = "Brunello Cucinelli, plain olive suede moccasin, $997.50 \nGucci, red leather laced sneakers, $760.00 \n"
+assertEquals(bargainOutput, expectedBargain, 'return a string of all items with price meeting criteria')
 
 const brunelloOutput = brunelloProduct(currentInventory);
-const brunelloExpected = [
-  {
-    Brunello: [
-      {name: 'black leather laced sneakers', price: 900},
-      {name: 'red leather laced sneakers', price: 800},
-    ]
-  }
-]
-// assertObject(brunelloOutput, brunelloExpected, `should return array of objects all brunello products in ascending price order`);
+const brunelloExpected = {
+   "Brunello Cucinelli":
+  [
+    {productName:"plain beige suede moccasin",productPrice:950,productQty:22},
+    {productName:"tasselled black low-top lace-up",productPrice:1000,productQty:12},
+    {productName:"plain olive suede moccasin",productPrice:1050,productQty:42},
+    {productName:"tasselled green low-top lace-up",productPrice:1100,productQty:2}
+  ]
+}
+
+assertEquals(brunelloOutput, brunelloExpected, 'return all of brunello product nested object in asceding order');
+
+const gucciOutput = gucciProduct(currentInventory);
+const gucciExpected = {
+  "Gucci":
+  [
+    {productName: "red leather laced sneakers", productPrice: 800, productQty: 31},
+    {productName: "black leather laced sneakers", productPrice: 900, productQty: 17},
+  ]
+};
+assertEquals(gucciOutput, gucciExpected, 'return all of brunello product nested object in asceding order');
+
+
+
 
 
 
