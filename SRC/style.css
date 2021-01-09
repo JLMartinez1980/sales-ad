@@ -51,12 +51,18 @@ header {
 }
 
 /* The Close Button */
-.close {
+.close, .closeBargain, .closeGucci, .closebrun {
   color: #aaa;
   float: right;
   font-size: 28px;
   font-weight: bold;
 }
+/* .closeBargain {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+} */
 
 .close:hover,
 .close:focus {

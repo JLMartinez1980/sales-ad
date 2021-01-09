@@ -5,16 +5,16 @@ var currentInventory = [
     name: 'Brunello Cucinelli',
     shoes: [
       {name: 'tasselled black low-top lace-up', price: 1000, inStock: 12, timeInDays: 23},
-      {name: 'tasselled green low-top lace-up', price: 1100, inStock: 2, timeInDays: 60},
-      {name: 'plain beige suede moccasin', price: 950, inStock: 11, timeInDays: 90},
-      {name: 'plain olive suede moccasin', price: 1050, inStock: 4, timeInDays: 45}
+      {name: 'tasselled green low-top lace-up', price: 1100, inStock: 2, timeInDays: 0},
+      {name: 'plain beige suede moccasin', price: 950, inStock: 11, timeInDays: 20},
+      {name: 'plain olive suede moccasin', price: 1050, inStock: 4, timeInDays: 30}
     ]
   },
   {
     name: 'Gucci',
     shoes: [
-      {name: 'red leather laced sneakers', price: 800, inStock: 31, timeInDays: 75},
-      {name: 'black leather laced sneakers', price: 900, inStock: 17, timeInDays: 60}
+      {name: 'red leather laced sneakers', price: 800, inStock: 8, timeInDays: 15},
+      {name: 'black leather laced sneakers', price: 900, inStock: 17, timeInDays: 30}
     ]
   }
 ];
@@ -28,7 +28,15 @@ productName: ,
 price: with 20% reduction
 };
 
+/*
+When refactor make sure code flows
+1st => the workers funcion,
+2nd => the create function,
+3rd => the display function
+
+1,2,3 and so forth
 */
+
 const currentPromotion = (currentInventory, expired) => {
   const expiredInventory = [];
   //use filter to seperate the two designers
@@ -36,18 +44,23 @@ const currentPromotion = (currentInventory, expired) => {
     //grab necessary values
     const designerName = product.name;
     const shoesArray = product.shoes;
+
     //map over shoes array
     shoesArray.map( (description) => {
       //get values && use helper function
       const shoeName = description.name;
       const shoePrice = Number(reducebyTwenty(description)).toFixed(2);
+      const howMany =  description.inStock;
+      const howLong = description.timeInDays
       //get only the products that are less than expired
       if (description.timeInDays >= expired) {
         //create return object
         const designerObject = {
           designer: designerName,
           name: shoeName,
-          price: `$${shoePrice}`
+          price: `$${shoePrice}`,
+          stock: howMany,
+          time: howLong
         }
         expiredInventory.push(designerObject);
       }
@@ -67,45 +80,33 @@ reducebyTwenty = product => product.price * .8;
 
 
 // Function to display HTML for Promotion Button
-const createPromotionHtml = (currentPromotion) => {
+const createPromotionHtml = (currentInventory) => {
+  //set variable to call function currentPromotion, with a experiation date of 30 days
+  const promoDetails = currentPromotion(currentInventory, 30);
+  console.log('promo', promoDetails);
   //Create main DIV
   const createDiv = document.createElement('div');
   //Create what is going to host the data
   const createParagraph = document.createElement('p');
   //forEach over first array
-  currentPromotion.forEach( (product) => {
-    const  createpromoDiv = document.createElement('div');
-    //Create HEADER to host designer name
-    let createHeader = document.createElement('h2');
-    createParagraph.appendChild(createHeader);
-    //set values for INFO needed
-    const descriptionHolder = product.shoes;
-    //second forEach over inner Array
-    descriptionHolder.forEach( (item) => {
+  for (let productDetails of promoDetails) {
+    //create innerHTML
+    const header = document.createElement('h2');
+    header.innerHTML = productDetails.designer;
+    const descriptionHolder = document.createElement('p');
+    descriptionHolder.innerHTML = `DESCRIPTION: ${productDetails.name}`;
+    const priceHolder = document.createElement('p');
+    priceHolder.innerHTML = `PRICE: ${productDetails.price}`;
+    const quanityHolder = document.createElement('p');
+    quanityHolder.innerHTML = `IN STOCK: ${productDetails.stock}`;
+    //append HTML to header
+    header.appendChild(priceHolder);
+    header.appendChild(descriptionHolder);
+    header.appendChild(quanityHolder);
 
-
-    createHeader.innerHTML = product.name
-
-      const priceHolder = document.createElement('p');
-      const descriptionHolder = document.createElement('p');
-      const quanityHolder = document.createElement('p');
-
-      descriptionHolder.innerHTML = `Description: ${item.name}`
-      priceHolder.innerHTML = `PRICE: $${item.price}`
-      quanityHolder.innerHTML = `IN STOCK: ${item.timeInDays}`
-
-
-      createParagraph.appendChild(descriptionHolder);
-      createParagraph.appendChild(priceHolder);
-      createParagraph.appendChild(quanityHolder);
-
-      createpromoDiv.appendChild(createParagraph)
-
-    })
-      createDiv.appendChild(createpromoDiv);
-      // createDiv.appendChild(createParagraph);
-
-  })
+    createParagraph.appendChild(header);
+  }
+  createDiv.appendChild(createParagraph)
 
   return createDiv;
 }
@@ -113,7 +114,7 @@ const createPromotionHtml = (currentPromotion) => {
 
 
 
-// Get the modal
+
 // Get the modal
 var modal = document.getElementById("promoModal");
 const paragraph = document.getElementById('paragraph');
@@ -147,21 +148,27 @@ window.onclick = function(event) {
 
 /*
 BARGAIN BUTTON FUNCTION
-OUTPUT => STRING: ALL PRODUCT THAT INSTOCK > 30  =>  DESIGNERNAME + DESCRIPTION + COST
+OUTPUT => STRING: ALL PRODUCT THAT INSTOCK > NUM =>  DESIGNERNAME + DESCRIPTION + COST
 Reduce price by 5%
 */
 const currentBargain = (inventory, target) => {
-  let bargainResult = ''
-  const designers = inventory.filter( (product) => {
+  let bargainResult = '';
+  const designers = inventory.map( (product) => {
+
     const designerName = product.name;
     const shoesArray = product.shoes;
-
+    console.log('bargain', product)
       const productInfo = shoesArray.map( (description) => {
-        const productName = description.name;
-        let productPrice = Number(reductByFive(description)).toFixed(2);
+
+        console.log('bargainDescription', description)
+        const productDescription = description.name;
+        const productPrice = description.price;
+        const inStock = description.inStock;
+
+        let reducedPrice = Number(reductByFive(description)).toFixed(2);
 
         if (description.inStock >= target) {
-          bargainResult += `${designerName}, ${productName}, $${productPrice} \n`
+          bargainResult += `${designerName}, ${productDescription}, $${reducedPrice} \n`
         }
       })
       return bargainResult;
@@ -171,9 +178,39 @@ const currentBargain = (inventory, target) => {
 
 reductByFive = product => product.price * .95;
 
+
+//BARGAIN HTML
+
+const createBargainHtml = (currentInventory) => {
+  const bargainHolder = [];
+  const bargainDiv = document.createElement('div');
+  const bargainParagraph = document.createElement('p');
+  const bargainDetails = currentBargain(currentInventory, 10);
+  //split 2 times to create an array with create word order.
+  const splitter = bargainDetails.split('  ');
+  // bargainHolder.push(bargainDetails);
+  // console.log('tester', bargainHolder);
+  // bargainHolder.forEach( (item) => {
+  //   console.log('item', item);
+  // })
+
+  splitter.forEach( (words) => {
+    const bargainDisplay = words;
+    bargainParagraph.innerHTML = bargainDisplay;
+  })
+
+  bargainDiv.appendChild(bargainParagraph);
+  return bargainDiv;
+
+}
+
+
 //Bargain Modal => yes, the goal is to only have one modal.
 
 var bargModal = document.getElementById("bargainModal");
+const bargParagraph = document.getElementById('bargainParagraph');
+
+bargParagraph.appendChild(createBargainHtml(currentInventory, 30));
 // Get the button that opens the modal
 var bargBtn = document.getElementById("bargain");
 // Get the <span> element that closes the modal
@@ -195,8 +232,97 @@ window.onclick = function(event) {
   }
 }
 
+//Gucci function
+const gucciProduct = (inventory) => {
+    const gucciDisplayObj = {};
+    const designers = inventory.filter( (product) => {
+      const designerName = product.name;
+      const shoesArray = product.shoes;
+
+        const productInfo = shoesArray.map( (description) => {
+          const productName = description.name;
+          const productPrice = description.price;
+          const productQty = description.inStock;
+
+          const gucciObj = {
+            productName,
+            productPrice,
+            productQty
+          };
+          return gucciObj;
+        })
+
+        const sortedByPrice = productInfo.sort( (a, b) => {
+            return a.productPrice - b.productPrice
+        })
+
+        if (designerName === 'Gucci') {
+          gucciDisplayObj[designerName] = sortedByPrice
+        }
+    })
+    return gucciDisplayObj;
+  }
+
+  const createGucciHTML = (currentInventory) => {
+    const getGucciInfo = gucciProduct(currentInventory);
+    const gucciDiv = document.createElement('div');
+
+    for (let key in getGucciInfo) {
+      const gucciInfo = getGucciInfo[key]
+      const gucciHeader = document.createElement('h2');
+      gucciHeader.innerHTML = key
+
+      gucciInfo.forEach( (product) => {
+        console.log('product', product);
+        const gucciDescription = document.createElement('p');
+        gucciDescription.innerHTML = `DESCRIPTION: ${product.productName}`;
+
+        const gucciPrice = document.createElement('p');
+        gucciPrice.innerHTML = `PRICE: $${product.productPrice}`;
+
+        const gucciQuanity = document.createElement('p');
+        gucciQuanity.innerHTML = `IN STOCK: ${product.productQty}`;
 
 
+        gucciHeader.appendChild(gucciDescription);
+        gucciHeader.appendChild(gucciPrice);
+        gucciHeader.appendChild(gucciQuanity);
+      })
+
+      gucciDiv.appendChild(gucciHeader);
+    }
+    return gucciDiv
+  }
+
+
+//Gucci Modal
+var guccModal = document.getElementById("gucciModal");
+
+const guccParagraph = document.getElementById('gucciParagraph');
+console.log('test', guccParagraph)
+// paragraph.appendChild(createPromotionHtml(currentInventory));
+guccParagraph.appendChild(createGucciHTML(currentInventory));
+// Get the button that opens the modal
+var guccBtn = document.getElementById("gucci");
+// Get the <span> element that closes the modal
+var guccSpan = document.getElementsByClassName("closeGucc")[0];
+// When the user clicks on the button, open the modal
+guccBtn.onclick = function() {
+  guccModal.style.display = "block";
+  console.log("guc", guccModal);
+}
+
+// When the user clicks on <span> (x), close the modal
+guccSpan.onclick = function() {
+  guccModal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == guccModal) {
+    guccModal.style.display = "none";
+  }
+}
 
 
 /*
@@ -235,36 +361,73 @@ const brunelloProduct = (inventory) => {
   return brunelloDisplayObj;
 }
 
+//Brunello HTML
+const createBrunelloHTML = (currentInventory) => {
+  const getbrunelloInfo = brunelloProduct(currentInventory);
+  const brunelloDiv = document.createElement('div');
 
-const gucciProduct = (inventory) => {
-    const gucciDisplayObj = {};
-    const designers = inventory.filter( (product) => {
-      const designerName = product.name;
-      const shoesArray = product.shoes;
+  for (let key in getbrunelloInfo) {
+    const brunelloInfo = getbrunelloInfo[key]
+    const brunelloHeader = document.createElement('h2');
+    brunelloHeader.innerHTML = key
 
-        const productInfo = shoesArray.map( (description) => {
-          const productName = description.name;
-          const productPrice = description.price;
-          const productQty = description.inStock;
+    brunelloInfo.forEach( (product) => {
+      console.log('product', product);
+      const brunelloDescription = document.createElement('p');
+      brunelloDescription.innerHTML = `DESCRIPTION: ${product.productName}`;
 
-          const gucciObj = {
-            productName,
-            productPrice,
-            productQty
-          };
-          return gucciObj;
-        })
+      const brunelloPrice = document.createElement('p');
+      brunelloPrice.innerHTML = `PRICE: $${product.productPrice}`;
 
-        const sortedByPrice = productInfo.sort( (a, b) => {
-            return a.productPrice - b.productPrice
-        })
+      const brunelloQuanity = document.createElement('p');
+      brunelloQuanity.innerHTML = `IN STOCK: ${product.productQty}`;
 
-        if (designerName === 'Gucci') {
-          gucciDisplayObj[designerName] = sortedByPrice
-        }
+
+      brunelloHeader.appendChild(brunelloDescription);
+      brunelloHeader.appendChild(brunelloPrice);
+      brunelloHeader.appendChild(brunelloQuanity);
     })
-    return gucciDisplayObj;
+
+    brunelloDiv.appendChild(brunelloHeader);
   }
+  console.log('brunello', brunelloDiv)
+  return brunelloDiv
+}
+
+
+
+//Brunello Modal
+var brunelloModal = document.getElementById("brunelloModal");
+const brunelloParagraph = document.getElementById('brunelloParagraph');
+console.log('brunello', brunelloParagraph)
+
+// paragraph.appendChild(createPromotionHtml(currentInventory));
+brunelloParagraph.appendChild(createBrunelloHTML(currentInventory));
+// Get the button that opens the modal
+var brunelloBtn = document.getElementById("brunello");
+// Get the <span> element that closes the modal
+var brunelloSpan = document.getElementsByClassName("closebrun")[0];
+// When the user clicks on the button, open the modal
+brunelloBtn.onclick = function() {
+  brunelloModal.style.display = "block";
+
+}
+
+// When the user clicks on <span> (x), close the modal
+brunelloSpan.onclick = function() {
+  brunelloModal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == brunelloModal) {
+    brunelloModal.style.display = "none";
+  }
+}
+
+console.log('brunelloModal', brunelloModal);
+
+
 /*
 CREATE A FUNCTION TO KEEP TRACK OF HOW MANY ITEMS HAVE BEEN PURCHASED
 TOTAL
@@ -294,8 +457,8 @@ const totalProductPurchased = () => {
 
 
 //test cases
-// const promotionOutput = currentPromotion(currentInventory , 10);
-// console.log('promotion', promotionOutput);
+const promotionOutput = currentPromotion(currentInventory , 5);
+console.log('promotion', promotionOutput);
 // const expectedPromotion = [
 //   {
 //   designer: "Brunello Cucinelli",
@@ -311,8 +474,8 @@ const totalProductPurchased = () => {
 //
 // assertEquals(promotionOutput, expectedPromotion, `should return nested object with price reduce`)
 //
-// const bargainOutput = currentBargain(currentInventory, 30);
-// console.log('bargain', bargainOutput);
+const bargainOutput = currentBargain(currentInventory, 10);
+console.log('bargain', bargainOutput);
 // const expectedBargain = "Brunello Cucinelli, plain olive suede moccasin, $997.50 \nGucci, red leather laced sneakers, $760.00 \n"
 // assertEquals(bargainOutput, expectedBargain, 'return a string of all items with price meeting criteria')
 //
