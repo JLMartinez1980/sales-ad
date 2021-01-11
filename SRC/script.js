@@ -1,6 +1,6 @@
 
-
-var currentInventory = [
+//FAKE API
+const currentInventory = [
   {
     name: 'Brunello Cucinelli',
     shoes: [
@@ -19,35 +19,22 @@ var currentInventory = [
   }
 ];
 /*
-PROMOTION BUTTON FUNCTION
-20% off for the product in inventory the longest
-I'll create a helper function, not sure if I will need one
-OUTPUT => 2 OBJECTs {
-designerName: ,
-productName: ,
-price: with 20% reduction
-};
+Create the function to sort through the API and take 20% of product that have BEEN
+in stock for more than 30 days
 
-/*
-When refactor make sure code flows
-1st => the workers funcion,
-2nd => the create function,
-3rd => the display function
-
-1,2,3 and so forth
 */
 
 const currentPromotion = (currentInventory, expired) => {
   const expiredInventory = [];
-  //use filter to seperate the two designers
+  //Map over current inventory
   currentInventory.map( (product) => {
-    //grab necessary values
+    //SET necessary values
     const designerName = product.name;
     const shoesArray = product.shoes;
 
     //map over shoes array
     shoesArray.map( (description) => {
-      //get values && use helper function
+      //get and set values
       const shoeName = description.name;
       const shoePrice = Number(reducebyTwenty(description)).toFixed(2);
       const howMany =  description.inStock;
@@ -74,14 +61,14 @@ const currentPromotion = (currentInventory, expired) => {
 };
 
 
-//helper function
+//helper function for PROMOTION function
 reducebyTwenty = product => product.price * .8;
 
 
 
 // Function to display HTML for Promotion Button
 const createPromotionHtml = (currentInventory) => {
-  //set variable to call function currentPromotion, with a experiation date of 30 days
+  //set constiable to call function currentPromotion, with a experiation date of 30 days
   const promoDetails = currentPromotion(currentInventory, 30);
   console.log('promo', promoDetails);
   //Create main DIV
@@ -111,21 +98,17 @@ const createPromotionHtml = (currentInventory) => {
   return createDiv;
 }
 
-
-
-
-
 // Get the modal
-var modal = document.getElementById("promoModal");
+const modal = document.getElementById("promoModal");
 const paragraph = document.getElementById('paragraph');
 
 paragraph.appendChild(createPromotionHtml(currentInventory));
 
 // Get the button that opens the modal
-var btn = document.getElementById("sale");
+const btn = document.getElementById("sale");
 
 // Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
+const span = document.getElementsByClassName("close")[0];
 
 // When the user clicks on the button, open the modal
 btn.onclick = function() {
@@ -148,83 +131,100 @@ window.onclick = function(event) {
 
 /*
 BARGAIN BUTTON FUNCTION
-OUTPUT => STRING: ALL PRODUCT THAT INSTOCK > NUM =>  DESIGNERNAME + DESCRIPTION + COST
-Reduce price by 5%
+reduce 5% off cost for any product that is in stock for longer than so many days
 */
-const currentBargain = (inventory, target) => {
-  let bargainResult = '';
-  const designers = inventory.map( (product) => {
 
+
+const currentBargain = (inventory, target) => {
+  const expiredInventory = [];
+    //Map over product to seperate the designers
+    currentInventory.map( (product) => {
+    //grab necessary values
     const designerName = product.name;
     const shoesArray = product.shoes;
-    console.log('bargain', product)
-      const productInfo = shoesArray.map( (description) => {
 
-        console.log('bargainDescription', description)
-        const productDescription = description.name;
-        const productPrice = description.price;
-        const inStock = description.inStock;
-
-        let reducedPrice = Number(reductByFive(description)).toFixed(2);
-
-        if (description.inStock >= target) {
-          bargainResult += `${designerName}, ${productDescription}, $${reducedPrice} \n`
+    //map over shoes array
+    shoesArray.map( (description) => {
+      //get values && use helper function
+      const shoeName = description.name;
+      const shoePrice = Number(reducebyTwenty(description)).toFixed(2);
+      const howMany =  description.inStock;
+      const howLong = description.timeInDays
+      //get only the products that are less than expired
+      if (description.timeInDays >= target) {
+        //create return object
+        const designerObject = {
+          designer: designerName,
+          name: shoeName,
+          price: `$${shoePrice}`,
+          stock: howMany,
+          time: howLong
         }
-      })
-      return bargainResult;
-  })
-  return bargainResult
-}
+        expiredInventory.push(designerObject);
+      }
+    });
+  });
+    if (expiredInventory.length === 0) {
+      return 'There are no Bargains currently';
+    } else {
+      return expiredInventory;
+    }
+  }
 
+//Helper function for the BARGAIN function
 reductByFive = product => product.price * .95;
 
 
-//BARGAIN HTML
-
+//Create BARGAIN HTML
+//CHOOSING to not leave notes, and see which is more readable
 const createBargainHtml = (currentInventory) => {
-  const bargainHolder = [];
-  const bargainDiv = document.createElement('div');
-  const bargainParagraph = document.createElement('p');
-  const bargainDetails = currentBargain(currentInventory, 10);
-  //split 2 times to create an array with create word order.
-  const splitter = bargainDetails.split('  ');
-  // bargainHolder.push(bargainDetails);
-  // console.log('tester', bargainHolder);
-  // bargainHolder.forEach( (item) => {
-  //   console.log('item', item);
-  // })
 
-  splitter.forEach( (words) => {
-    const bargainDisplay = words;
-    bargainParagraph.innerHTML = bargainDisplay;
+  const bargainDiv = document.createElement('div');
+
+  const bargainDetails = currentBargain(currentInventory, 30);
+
+  bargainDetails.forEach( (product) => {
+
+    const bargainHeader = document.createElement('h2');
+    bargainHeader.innerHTML = product.designer;
+
+    const bargainDescription = document.createElement('p');
+    bargainDescription.innerHTML = `DESCRIPTION: ${product.name}`;
+
+    const bargainPrice = document.createElement('p');
+    bargainPrice.innerHTML = `PRICE: ${product.price}`;
+
+    const inStock = document.createElement('p');
+    inStock.innerHTML = `IN STOCK: ${product.stock}`;
+
+
+    bargainHeader.appendChild(bargainDescription);
+    bargainHeader.appendChild(bargainPrice);
+    bargainHeader.appendChild(inStock);
+
+    bargainDiv.appendChild(bargainHeader);
   })
 
-  bargainDiv.appendChild(bargainParagraph);
-  return bargainDiv;
-
+  return bargainDiv
 }
 
 
 //Bargain Modal => yes, the goal is to only have one modal.
-
-var bargModal = document.getElementById("bargainModal");
+const bargModal = document.getElementById("bargainModal");
 const bargParagraph = document.getElementById('bargainParagraph');
-
 bargParagraph.appendChild(createBargainHtml(currentInventory, 30));
 // Get the button that opens the modal
-var bargBtn = document.getElementById("bargain");
+const bargBtn = document.getElementById("bargain");
 // Get the <span> element that closes the modal
-var bargSpan = document.getElementsByClassName("closeBargain")[0];
+const bargSpan = document.getElementsByClassName("closeBargain")[0];
 // When the user clicks on the button, open the modal
 bargBtn.onclick = function() {
   bargModal.style.display = "block";
 }
-
 // When the user clicks on <span> (x), close the modal
 bargSpan.onclick = function() {
   bargModal.style.display = "none";
 }
-
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
   if (event.target == bargModal) {
@@ -232,7 +232,7 @@ window.onclick = function(event) {
   }
 }
 
-//Gucci function
+//Function to sort all Gucci product in ascending order
 const gucciProduct = (inventory) => {
     const gucciDisplayObj = {};
     const designers = inventory.filter( (product) => {
@@ -263,6 +263,7 @@ const gucciProduct = (inventory) => {
     return gucciDisplayObj;
   }
 
+  //CREATE Gucci HTML
   const createGucciHTML = (currentInventory) => {
     const getGucciInfo = gucciProduct(currentInventory);
     const gucciDiv = document.createElement('div');
@@ -296,27 +297,24 @@ const gucciProduct = (inventory) => {
 
 
 //Gucci Modal
-var guccModal = document.getElementById("gucciModal");
+const guccModal = document.getElementById("gucciModal");
 
 const guccParagraph = document.getElementById('gucciParagraph');
-console.log('test', guccParagraph)
 // paragraph.appendChild(createPromotionHtml(currentInventory));
 guccParagraph.appendChild(createGucciHTML(currentInventory));
 // Get the button that opens the modal
-var guccBtn = document.getElementById("gucci");
+const guccBtn = document.getElementById("gucci");
 // Get the <span> element that closes the modal
-var guccSpan = document.getElementsByClassName("closeGucc")[0];
+const guccSpan = document.getElementsByClassName("closeGucc")[0];
 // When the user clicks on the button, open the modal
 guccBtn.onclick = function() {
   guccModal.style.display = "block";
   console.log("guc", guccModal);
 }
-
 // When the user clicks on <span> (x), close the modal
 guccSpan.onclick = function() {
   guccModal.style.display = "none";
 }
-
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
   if (event.target == guccModal) {
@@ -326,9 +324,7 @@ window.onclick = function(event) {
 
 
 /*
-GUCCI AND Brunello BUTTONES EXACTLY THE SAME
-OUTPUT => ARRAY { GUCCI: [PRODUCT IN ASCENDING ORDER], BRUELLO: [PRODUCT IN ASCENDING ORDER]]
-AsSCEND BY COST
+Create Brunello function to sort product in ascending order
 */
 
 const brunelloProduct = (inventory) => {
@@ -361,7 +357,7 @@ const brunelloProduct = (inventory) => {
   return brunelloDisplayObj;
 }
 
-//Brunello HTML
+//Create Brunello HTML
 const createBrunelloHTML = (currentInventory) => {
   const getbrunelloInfo = brunelloProduct(currentInventory);
   const brunelloDiv = document.createElement('div');
@@ -397,16 +393,16 @@ const createBrunelloHTML = (currentInventory) => {
 
 
 //Brunello Modal
-var brunelloModal = document.getElementById("brunelloModal");
+const brunelloModal = document.getElementById("brunelloModal");
 const brunelloParagraph = document.getElementById('brunelloParagraph');
 console.log('brunello', brunelloParagraph)
 
 // paragraph.appendChild(createPromotionHtml(currentInventory));
 brunelloParagraph.appendChild(createBrunelloHTML(currentInventory));
 // Get the button that opens the modal
-var brunelloBtn = document.getElementById("brunello");
+const brunelloBtn = document.getElementById("brunello");
 // Get the <span> element that closes the modal
-var brunelloSpan = document.getElementsByClassName("closebrun")[0];
+const brunelloSpan = document.getElementsByClassName("closebrun")[0];
 // When the user clicks on the button, open the modal
 brunelloBtn.onclick = function() {
   brunelloModal.style.display = "block";
@@ -456,9 +452,8 @@ const totalProductPurchased = () => {
 // }
 
 
-//test cases
-const promotionOutput = currentPromotion(currentInventory , 5);
-console.log('promotion', promotionOutput);
+// I need to Re-write all test cases, as I've change the structure and limits
+// of a few functions 
 // const expectedPromotion = [
 //   {
 //   designer: "Brunello Cucinelli",
